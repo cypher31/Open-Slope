@@ -19,6 +19,11 @@ config/name="Open-Slope"
 run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+SearchCircular="*res://global/search_circular.gd"
+Utility="*res://global/utility.gd"
+
 [display]
 
 window/size/resizable=false

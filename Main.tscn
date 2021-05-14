@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://slope_geometry/slope_geometry.tscn" type="PackedScene" id=1]
+[ext_resource path="res://prototype/run_button.gd" type="Script" id=2]
 
 [node name="Main" type="Control"]
 margin_right = 1024.0
@@ -39,7 +40,7 @@ margin_bottom = 570.0
 rect_min_size = Vector2( 200, 570 )
 size_flags_vertical = 3
 
-[node name="Panel2" type="Panel" parent="mc/hbox/container_menu_1"]
+[node name="panel_container" type="PanelContainer" parent="mc/hbox/container_menu_1"]
 margin_right = 200.0
 margin_bottom = 570.0
 size_flags_horizontal = 3
@@ -52,11 +53,22 @@ margin_bottom = 570.0
 rect_min_size = Vector2( 200, 570 )
 size_flags_vertical = 3
 
-[node name="Panel3" type="Panel" parent="mc/hbox/container_menu_2"]
+[node name="panel_container" type="PanelContainer" parent="mc/hbox/container_menu_2"]
 margin_right = 200.0
 margin_bottom = 570.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="Button" type="Button" parent="mc/hbox/container_menu_2/panel_container"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 193.0
+margin_bottom = 563.0
+text = "RUN"
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="container_profile" type="VBoxContainer" parent="mc/hbox"]
 margin_left = 408.0

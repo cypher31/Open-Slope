@@ -6,7 +6,7 @@ extends Panel
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	
+	SearchCircular.surface_search_temp = $surface_search_temp
 	pass # Replace with function body.
 
 
