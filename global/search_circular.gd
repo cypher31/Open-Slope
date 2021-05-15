@@ -18,6 +18,7 @@ func _ready():
 	Utility.connect("termination_assign", self, "_assign_termination_variables")
 	pass # Replace with function body.
 
+
 func _generate_initial_segment(initiation_point : Position2D):
 	var theta : float #initial angle of the first segment
 	
@@ -38,6 +39,7 @@ func _generate_initial_segment(initiation_point : Position2D):
 	var theta_max : float = _calculate_theta_increment(termination_right, segment, initiation_point)
 	return
 	
+	
 func _calculate_segment_initial_angle(ccwl, cwl):
 	var theta : float #initial angle for segment
 	var random_num : float = randf() #randum number between 0 & 1
@@ -46,12 +48,14 @@ func _calculate_segment_initial_angle(ccwl, cwl):
 	
 	return theta
 	
+	
 func _assign_termination_variables(termination_point):
 	if termination_point.get_name() == "termination_left":
 		termination_left = termination_point
 	elif termination_point.get_name() == "termination_right":
 		termination_right = termination_point
 	return
+
 
 func _calculate_next_segment_point(start_point : Vector2, theta : float, segment_length : int):
 	var end_point : Vector2
@@ -60,9 +64,11 @@ func _calculate_next_segment_point(start_point : Vector2, theta : float, segment
 	end_point.y = segment_length * sin(deg2rad(theta))
 	return end_point
 	
+	
 func _calculate_theta_increment(termination_point : Position2D, segment_initial : Line2D, initiation_point : Position2D):
 	#calculate center point of segment_initial
 	#calculate center point of line connecting initiation point and termination point
 	#draw a line perpindicular to each segment starting from the calculated centers and check where they intercept
 	#the distance from the intersection point to the initiation point is the radius of the circle
-	return
+	var theta_increment : float #max or min depending on inputs
+	return theta_increment
