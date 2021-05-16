@@ -74,42 +74,54 @@ func _calculate_theta_increment(termination_point : Position2D, segment_initial 
 	var segment_termination : Line2D = Line2D.new()
 	var segment_initial_points : PoolVector2Array = segment_initial.get_points()
 	
-	segment_termination.set_points([initiation_point.position,termination_point.position]) #segment start point & end
+	segment_termination.set_points([segment_initial.get_points()[1],termination_point.position]) #segment start point & end
 	var segment_termination_points = segment_termination.get_points()
 	
 	var segment_initial_center_point : Vector2 = _calculate_segment_mid_point(segment_initial)
 	var segment_termination_center_point : Vector2 = _calculate_segment_mid_point(segment_termination)
 	
-	var segment_initial_slope_x = segment_initial_points[1].x - segment_initial_points[0].x
-	var segment_initial_slope_y = segment_initial_points[1].y - segment_initial_points[0].y
-	var segment_initial_slope : Vector2 = Vector2(segment_initial_slope_x, segment_initial_slope_y)
+	#debug
+	surface_search_temp.add_child(segment_termination) #show the two termination segments
+	segment_termination.set_width(1)
+	##debug
+
+	var delta_perpendicular_initial : Vector2 = _calculate_perpendicular_segment(segment_initial)
+	var delta_perpendicular_termination : Vector2 = _calculate_perpendicular_segment(segment_termination)
 	
-	var segment_termination_slope_x = segment_termination_points[1].x - segment_termination_points[0].x
-	var segment_termination_slope_y = segment_termination_points[1].y - segment_termination_points[0].y
-	var segment_termination_slope : Vector2 = Vector2(segment_termination_slope_x, segment_termination_slope_y)
+	var perpendicular_initial_segment_start : Vector2 = segment_initial_center_point
+	var perpendicular_initial_segment_end : Vector2 = segment_initial_center_point + delta_perpendicular_initial * -500
 	
-	var segment_initial_perpendicular_slope : Vector2 = segment_initial_slope * - 1
-	var segement_termination_perpendicular_slope :Vector2 = segment_termination_slope * - 1
+	var perpendicular_termination_segment_start : Vector2 = segment_termination_center_point
+	var perpendicular_termination_segment_end : Vector2 = segment_termination_center_point + delta_perpendicular_termination* -500
 	
-	var segment_perpendicular_initial : Line2D
-	var segment_perpendicular_termination : Line2D
+	var segment_perpendicular_initial : Line2D = Line2D.new()
+	var segment_perpendicular_termination : Line2D = Line2D.new()
 	
-	var segment_perpendicular_initial_start : Vector2 = segment_initial_center_point
-	var segment_perpendicular_termination_start : Vector2 = segment_termination_center_point
+	segment_perpendicular_initial.set_points([perpendicular_initial_segment_start, perpendicular_initial_segment_end])
+	segment_perpendicular_termination.set_points([perpendicular_termination_segment_start,perpendicular_termination_segment_end])
 	
-#	var x_point_initial : float = 5000 #the point where the perpendicular segment is ending
-#	var x_point_termination : float = 0
-#	var y_point_initial : float = (segment_initial_slope.y / segment_initial_slope.x)
-#	var y_point_termination : float
+	var segment_perpendicular_initial_points = segment_perpendicular_initial.points
+	var segment_perpendicular_termination_points = segment_perpendicular_termination.points
 	
-	#I think the problem here is that the vector2 is just a point and it needs to be a full line??
-	var segment_perpendicular_initial_end : Vector2 = segment_perpendicular_initial_start * 1000
-	var segment_perpendicular_termination_end : Vector2 = segment_perpendicular_termination_start * (-1000)
+	segment_perpendicular_initial.set_points([segment_perpendicular_initial_points[0],segment_perpendicular_initial_points[1]])
+	segment_perpendicular_termination.set_points([segment_perpendicular_termination_points[0],segment_perpendicular_termination_points[1]])
 	
-	var circle_center_point = Geometry.segment_intersects_segment_2d(segment_perpendicular_initial_start, segment_perpendicular_initial_end,segment_perpendicular_termination_start, segment_perpendicular_termination_end)
-#	print(segment_initial_center_point)
-#	print(segment_termination_center_point)
-	print(circle_center_point)
+	var circle_center_point = Geometry.segment_intersects_segment_2d(segment_perpendicular_initial_points[0],segment_perpendicular_initial_points[1],segment_perpendicular_termination_points[0],segment_perpendicular_termination_points[1])
+
+	#debug
+	surface_search_temp.add_child(segment_perpendicular_initial)
+	surface_search_temp.add_child(segment_perpendicular_termination)
+	
+	segment_perpendicular_initial.set_width(1)
+	segment_perpendicular_termination.set_width(1)
+	##debug
+	
+	var initiation_point_position : Vector2 = initiation_point.position
+	var circle_radius : float = initiation_point_position.distance_to(circle_center_point)
+	var initial_segment_length : float = segment_initial_points[0].distance_to(segment_initial_points[1])
+	
+	theta_increment = 2 * asin(initial_segment_length / (2 * circle_radius))
+	print(rad2deg(theta_increment))
 	return theta_increment
 	
 
@@ -122,3 +134,15 @@ func _calculate_segment_mid_point(segment_initial):
 	mid_point = Vector2(x_average, y_average)
 	
 	return mid_point
+
+
+func _calculate_perpendicular_segment(segment : Line2D):
+	#the perpendicular vector of (x,y) is (-y,x)
+	var segment_start : Vector2 = segment.get_points()[0]
+	var segment_end : Vector2 = segment.get_points()[1]
+	
+	var delta_x : float = segment_end.x - segment_start.x
+	var delta_y : float = segment_end.y - segment_start.y
+	
+	var delta_perpendicular : Vector2 = Vector2(-delta_y, delta_x)
+	return delta_perpendicular
