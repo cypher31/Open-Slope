@@ -13,5 +13,6 @@ func _ready():
 	
 	
 func _generate_search_circular():
-	SearchCircular._generate_initial_segment(self)
+	for i in range(0, 500):
+		SearchCircular._generate_initial_segment(self)
 	return

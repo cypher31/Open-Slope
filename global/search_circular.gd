@@ -3,7 +3,7 @@ extends Node
 var angle_counter_clockwise_limit : int = 45 #degrees
 var angle_clockwise_limit : int = 5 #degrees; should be 5 degree from surface geometry eventually
 
-var segment_length : int = 50 #length of chords which make up the circle
+var segment_length : int = 8 #length of chords which make up the circle
 
 var termination_left : Position2D #left most termination point
 var termination_right : Position2D #right most termination point
@@ -35,8 +35,12 @@ func _generate_initial_segment(initiation_point : Position2D):
 	surface_search_temp.add_child(segment)
 	
 	#calculate theta_min and theta_max that will be used for next segments
-	var theta_min : float = _calculate_theta_increment(termination_left, segment, initiation_point)
-	var theta_max : float = _calculate_theta_increment(termination_right, segment, initiation_point)
+	var theta_left_termination : float = _calculate_theta_increment(termination_left, segment, initiation_point)
+	var theta_right_termination : float = _calculate_theta_increment(termination_right, segment, initiation_point)
+	
+	var theta_trial : float = rand_range(theta_right_termination, theta_left_termination)
+	
+	_generate_circular_surface(theta_trial, segment, segment_length, 1)
 	return
 	
 	
@@ -81,8 +85,8 @@ func _calculate_theta_increment(termination_point : Position2D, segment_initial 
 	var segment_termination_center_point : Vector2 = _calculate_segment_mid_point(segment_termination)
 	
 	#debug
-	surface_search_temp.add_child(segment_termination) #show the two termination segments
-	segment_termination.set_width(1)
+#	surface_search_temp.add_child(segment_termination) #show the two termination segments
+#	segment_termination.set_width(1)
 	##debug
 
 	var delta_perpendicular_initial : Vector2 = _calculate_perpendicular_segment(segment_initial)
@@ -109,11 +113,11 @@ func _calculate_theta_increment(termination_point : Position2D, segment_initial 
 	var circle_center_point = Geometry.segment_intersects_segment_2d(segment_perpendicular_initial_points[0],segment_perpendicular_initial_points[1],segment_perpendicular_termination_points[0],segment_perpendicular_termination_points[1])
 
 	#debug
-	surface_search_temp.add_child(segment_perpendicular_initial)
-	surface_search_temp.add_child(segment_perpendicular_termination)
-	
-	segment_perpendicular_initial.set_width(1)
-	segment_perpendicular_termination.set_width(1)
+#	surface_search_temp.add_child(segment_perpendicular_initial)
+#	surface_search_temp.add_child(segment_perpendicular_termination)
+#
+#	segment_perpendicular_initial.set_width(1)
+#	segment_perpendicular_termination.set_width(1)
 	##debug
 	
 	var initiation_point_position : Vector2 = initiation_point.position
@@ -121,8 +125,8 @@ func _calculate_theta_increment(termination_point : Position2D, segment_initial 
 	var initial_segment_length : float = segment_initial_points[0].distance_to(segment_initial_points[1])
 	
 	theta_increment = 2 * asin(initial_segment_length / (2 * circle_radius))
-	print(rad2deg(theta_increment))
-	return theta_increment
+#	print(rad2deg(theta_increment))
+	return rad2deg(theta_increment)
 	
 
 func _calculate_segment_mid_point(segment_initial):
@@ -146,3 +150,32 @@ func _calculate_perpendicular_segment(segment : Line2D):
 	
 	var delta_perpendicular : Vector2 = Vector2(-delta_y, delta_x)
 	return delta_perpendicular
+	
+	
+func _generate_circular_surface(theta_angle : float, segment : Line2D, segment_length : int, segment_num : int):
+	var start_x : float = segment.points[1].x
+	var start_y : float = segment.points[1].y
+	
+	#ANGLE NEEDS TO BE RELATIVE TO THE ANGLE OF HTE INITIAL SEGMENT!!!
+	var end_x : float = segment_length * cos(deg2rad(-theta_angle * segment_num)) + start_x
+	var end_y : float = segment_length * sin(deg2rad(-theta_angle * segment_num)) + start_y
+	
+	var coords_start : Vector2 = Vector2(start_x, start_y)
+	var coords_end : Vector2 = Vector2(end_x, end_y)
+	
+	var segment_new : Line2D = Line2D.new()
+	
+	surface_search_temp.add_child(segment_new)
+	segment_new.set_points([coords_start, coords_end])
+	segment_new.set_width(1)
+	
+	var point_check : Vector2 = Vector2(start_x, end_x)
+	
+	var dict_temp = {"point_check" : point_check, "segment_new" : segment_new}
+	
+	if start_x - end_x > 0 || end_y < 150:
+		print(surface_search_temp.get_child_count())
+	else:
+		_generate_circular_surface(theta_angle, segment_new, segment_length, segment_num + 1)
+#		print(surface_search_temp.get_child_count())
+	return dict_temp
