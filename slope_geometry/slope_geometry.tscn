@@ -28,15 +28,16 @@ default_color = Color( 1, 0.4, 0.682353, 1 )
 [node name="points_initiation" type="Node2D" parent="."]
 
 [node name="point_1" parent="points_initiation" instance=ExtResource( 2 )]
+position = Vector2( 70, 260 )
 
 [node name="points_termination" type="Node2D" parent="."]
 script = ExtResource( 3 )
 
 [node name="termination_left" type="Position2D" parent="points_termination"]
-position = Vector2( 360, 160 )
+position = Vector2( 400, 160 )
 
 [node name="termination_right" type="Position2D" parent="points_termination"]
-position = Vector2( 530, 160 )
+position = Vector2( 510, 160 )
 
 [node name="surface_search_temp" type="Node2D" parent="."]
 

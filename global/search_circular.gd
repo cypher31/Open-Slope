@@ -3,7 +3,7 @@ extends Node
 var angle_counter_clockwise_limit : int = 45 #degrees
 var angle_clockwise_limit : int = 5 #degrees; should be 5 degree from surface geometry eventually
 
-var segment_length : int = 8 #length of chords which make up the circle
+var segment_length : int = 50 #length of chords which make up the circle
 
 var termination_left : Position2D #left most termination point
 var termination_right : Position2D #right most termination point
@@ -40,7 +40,12 @@ func _generate_initial_segment(initiation_point : Position2D):
 	
 	var theta_trial : float = rand_range(theta_right_termination, theta_left_termination)
 	
-	_generate_circular_surface(theta_trial, segment, segment_length, 1)
+	var delta_x : float = end_point.x - start_point.x
+	var delta_y : float = end_point.y - start_point.y
+	
+	var previous_segment_angle : float = rad2deg(atan(delta_y / delta_x))
+
+	_generate_circular_surface(theta_trial, segment, segment_length, previous_segment_angle)
 	return
 	
 	
@@ -152,18 +157,23 @@ func _calculate_perpendicular_segment(segment : Line2D):
 	return delta_perpendicular
 	
 	
-func _generate_circular_surface(theta_angle : float, segment : Line2D, segment_length : int, segment_num : int):
+func _generate_circular_surface(theta_angle : float, segment : Line2D, segment_length : int, previous_segment_angle : float):
 	var start_x : float = segment.points[1].x
 	var start_y : float = segment.points[1].y
 	
 	#ANGLE NEEDS TO BE RELATIVE TO THE ANGLE OF HTE INITIAL SEGMENT!!!
-	var end_x : float = segment_length * cos(deg2rad(-theta_angle * segment_num)) + start_x
-	var end_y : float = segment_length * sin(deg2rad(-theta_angle * segment_num)) + start_y
+	var end_x : float = segment_length * cos(deg2rad(previous_segment_angle - theta_angle)) + start_x
+	var end_y : float = segment_length * sin(deg2rad(previous_segment_angle - theta_angle)) + start_y
 	
 	var coords_start : Vector2 = Vector2(start_x, start_y)
 	var coords_end : Vector2 = Vector2(end_x, end_y)
 	
 	var segment_new : Line2D = Line2D.new()
+	
+	var delta_x : float = coords_end.x - coords_start.x
+	var delta_y : float = coords_end.y - coords_start.y
+	
+	var next_angle : float = rad2deg(atan(delta_y / delta_x))
 	
 	surface_search_temp.add_child(segment_new)
 	segment_new.set_points([coords_start, coords_end])
@@ -176,6 +186,6 @@ func _generate_circular_surface(theta_angle : float, segment : Line2D, segment_l
 	if start_x - end_x > 0 || end_y < 150:
 		print(surface_search_temp.get_child_count())
 	else:
-		_generate_circular_surface(theta_angle, segment_new, segment_length, segment_num + 1)
+		_generate_circular_surface(theta_angle, segment_new, segment_length, next_angle)
 #		print(surface_search_temp.get_child_count())
 	return dict_temp
