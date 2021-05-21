@@ -53,7 +53,7 @@ func _calculate_segment_initial_angle(ccwl, cwl):
 	var theta : float #initial angle for segment
 	var random_num : float = randf() #randum number between 0 & 1
 	
-	theta = cwl + (ccwl - cwl) * pow(random_num, 2)
+	theta = cwl + abs(ccwl - cwl) * pow(random_num, 2)
 	
 	return theta
 	
@@ -183,8 +183,9 @@ func _generate_circular_surface(theta_angle : float, segment : Line2D, segment_l
 	
 	var dict_temp = {"point_check" : point_check, "segment_new" : segment_new}
 	
-	if start_x - end_x > 0 || end_y < 150:
+	if start_x - end_x > 0 :
 		print(surface_search_temp.get_child_count())
+		segment_new.queue_free()
 	else:
 		_generate_circular_surface(theta_angle, segment_new, segment_length, next_angle)
 #		print(surface_search_temp.get_child_count())
