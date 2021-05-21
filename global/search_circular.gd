@@ -9,6 +9,9 @@ var termination_left : Position2D #left most termination point
 var termination_right : Position2D #right most termination point
 
 var surface_search_temp : Node2D #node that will hold the surfaces to check they fall within parameters
+var surface_search_final : Node2D #node that holds the surface once it passes all checks
+
+var dict_temp_surface : Dictionary = {}
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -44,8 +47,13 @@ func _generate_initial_segment(initiation_point : Position2D):
 	var delta_y : float = end_point.y - start_point.y
 	
 	var previous_segment_angle : float = rad2deg(atan(delta_y / delta_x))
-
-	_generate_circular_surface(theta_trial, segment, segment_length, previous_segment_angle)
+	
+	dict_temp_surface[0] = segment.points[0]
+	dict_temp_surface[1] = segment.points[1]
+	
+	var segment_points : PoolVector2Array = [segment.points[0], segment.points[1]]
+	
+	_generate_circular_surface(theta_trial, segment_points, segment_length, previous_segment_angle)
 	return
 	
 	
@@ -157,9 +165,9 @@ func _calculate_perpendicular_segment(segment : Line2D):
 	return delta_perpendicular
 	
 	
-func _generate_circular_surface(theta_angle : float, segment : Line2D, segment_length : int, previous_segment_angle : float):
-	var start_x : float = segment.points[1].x
-	var start_y : float = segment.points[1].y
+func _generate_circular_surface(theta_angle : float, segment : PoolVector2Array, segment_length : int, previous_segment_angle : float):
+	var start_x : float = segment[1].x
+	var start_y : float = segment[1].y
 	
 	#ANGLE NEEDS TO BE RELATIVE TO THE ANGLE OF HTE INITIAL SEGMENT!!!
 	var end_x : float = segment_length * cos(deg2rad(previous_segment_angle - theta_angle)) + start_x
@@ -175,18 +183,40 @@ func _generate_circular_surface(theta_angle : float, segment : Line2D, segment_l
 	
 	var next_angle : float = rad2deg(atan(delta_y / delta_x))
 	
-	surface_search_temp.add_child(segment_new)
-	segment_new.set_points([coords_start, coords_end])
-	segment_new.set_width(1)
+#	surface_search_temp.add_child(segment_new)
+#	segment_new.set_points([coords_start, coords_end])
+#	segment_new.set_width(1)
 	
-	var point_check : Vector2 = Vector2(start_x, end_x)
-	
-	var dict_temp = {"point_check" : point_check, "segment_new" : segment_new}
+#	var point_check : Vector2 = Vector2(start_x, end_x)
+#
+#	var dict_temp = {"point_check" : point_check, "segment_new" : segment_new}
 	
 	if start_x - end_x > 0 :
-		print(surface_search_temp.get_child_count())
-		segment_new.queue_free()
+		var temp_point_array : PoolVector2Array = []
+#		segment_new.queue_free()
+		
+		var full_surface : Line2D = Line2D.new()
+		
+		for key in dict_temp_surface:
+			temp_point_array.append(dict_temp_surface[key])
+		
+		full_surface.set_points(temp_point_array)
+		full_surface.set_width(1)
+		surface_search_final.add_child(full_surface)
+		
+		#think about using the draw call function to draw a line with the temp_point_array - should be much faster
+		#clear temp data
+		dict_temp_surface.clear()
+		var temp_surfaces = surface_search_temp.get_children()
+		
+		for child in temp_surfaces:
+			child.queue_free()
 	else:
-		_generate_circular_surface(theta_angle, segment_new, segment_length, next_angle)
-#		print(surface_search_temp.get_child_count())
-	return dict_temp
+		var i = dict_temp_surface.keys().max() + 1
+		
+		dict_temp_surface[i] = coords_end
+		
+		var segment_points : PoolVector2Array = [coords_start, coords_end]
+		
+		_generate_circular_surface(theta_angle, segment_points, segment_length, next_angle)
+	return #dict_temp

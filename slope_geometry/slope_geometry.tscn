@@ -40,6 +40,8 @@ position = Vector2( 510, 160 )
 
 [node name="surface_search_temp" type="Node2D" parent="."]
 
+[node name="surface_search_final" type="Node2D" parent="."]
+
 [node name="lines_surface" type="Node2D" parent="."]
 
 [node name="surface" type="Line2D" parent="lines_surface"]
